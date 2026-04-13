@@ -53,7 +53,7 @@ function Register() {
   return (
     <>
       <p className="loginLine">
-        Already have an account? <Link to="/login">SignIn</Link>
+        Already have an account? <Link to="/login">Sign In</Link>
       </p>
       <p className="loginsecondLine">
         For testing purposes, use the credentials: username: <b>user</b> and
@@ -63,7 +63,7 @@ function Register() {
       <div className="register">
         <form onSubmit={handleSubmit}>
           <div className="left">
-            <h1>Create a new account</h1>
+            <h1>Create your account</h1>
             <label htmlFor="">Username</label>
             <input
               name="username"
@@ -97,9 +97,9 @@ function Register() {
             <button type="submit">Register</button>
           </div>
           <div className="right">
-            <h1>I want to become a Developer</h1>
+            <h1>I want to offer services as a Provider</h1>
             <div className="toggle">
-              <label htmlFor="">Activate the Developer account</label>
+              <label htmlFor="">Activate Provider account</label>
               <label className="switch">
                 <input type="checkbox" onChange={handleSeller} />
                 <span className="slider round"></span>
@@ -114,7 +114,7 @@ function Register() {
             />
             <label htmlFor="">Description</label>
             <textarea
-              placeholder="A short description of yourself"
+              placeholder="Describe your skills, services, and availability"
               name="desc"
               id=""
               cols="30"

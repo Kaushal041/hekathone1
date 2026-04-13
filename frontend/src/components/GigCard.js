@@ -5,8 +5,11 @@ import starImg from "../assets/star.png";
 import { useQuery } from "@tanstack/react-query";
 import newRequest from "../utils/newRequest";
 import avatarImg from "../assets/undraw_Male_avatar.png";
+import { getCategoryImage } from "../utils/categoryMedia";
 
 const GigCard = ({ item }) => {
+  const cardImage = item?.cover || getCategoryImage(item?.cat, "https://images.pexels.com/photos/5077393/pexels-photo-5077393.jpeg?auto=compress&cs=tinysrgb&w=1200");
+
   const { isLoading, error, data: userData } = useQuery({
     queryKey: [item.userId],
     queryFn: () =>
@@ -45,14 +48,14 @@ const GigCard = ({ item }) => {
         "Something went wrong!"
       ) : (
         <div className="gigCard">
-          <img className="gigImg" src={item.cover} alt="" />
+          <img className="gigImg" src={cardImage} alt={item?.cat || "Job"} />
           <div className="info">
             <div className="cardUser">
               <img
                 src={userData?.img || avatarImg}
                 alt=""
               />
-              <span>{userData?.username || "Developer"}</span>
+              <span>{userData?.username || "Provider"}</span>
             </div>
 
             <p>{item.title}</p>
@@ -62,7 +65,7 @@ const GigCard = ({ item }) => {
                 <span>{item.totalStars}</span>
               </div>
               <div className="price">
-                <span>STARTING AT</span>
+                <span>STARTING PRICE</span>
                 <h2>INR {item.price}</h2>
               </div>
             </div>

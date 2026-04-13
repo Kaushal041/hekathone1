@@ -16,6 +16,36 @@
   align-items: center;
 }
 
+.dashboardStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.statCard {
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  padding: 14px;
+  background: #fff;
+}
+
+.statCard h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.statCard p {
+  margin: 8px 0 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1c1e20;
+}
+
+.tableHeading {
+  margin: 18px 0 10px;
+}
+
 .orderContact {
   height: 30px;
 }
@@ -36,6 +66,11 @@
   .ordersContainer {
     height: auto;
   }
+
+  .dashboardStats {
+    grid-template-columns: 1fr;
+  }
+
   .ordersContainer tr {
     background-color: #4e4e4e0f;
     font-size: 14px;

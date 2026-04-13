@@ -12,10 +12,30 @@
 .link {
   text-decoration: none;
   color: black;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .logoImg {
   height: 45px;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandName {
+  font-family: "gilroyBold";
+  font-size: 22px;
+  line-height: 1;
+}
+
+.brandTagline {
+  font-size: 11px;
+  color: #666;
+  font-family: "gilroySemiBold";
 }
 
 .navContainer {
@@ -121,5 +141,9 @@
   }
   .logoImg {
     height: 35px;
+  }
+
+  .brandTagline {
+    display: none;
   }
 }

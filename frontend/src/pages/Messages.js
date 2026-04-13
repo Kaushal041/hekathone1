@@ -57,22 +57,22 @@ const Messages = () => {
       ) : (
         <div className="messagesContainer">
           <div className="messagesTitle">
-            <h1>Messages</h1>
+            <h1>Job Conversations</h1>
           </div>
           {data.length === 0 ? (
             <div className="noMessages">
-              You don’t have any messages yet.
+              You do not have any conversations yet.
               <br />
               Start a conversation from the{" "}
               <Link to="/orders" className="link">
-                Orders
+                Jobs and Transactions
               </Link>{" "}
               page.
             </div>
           ) : (
             <table>
               <tr>
-                <th>{currentUser.isSeller ? "Buyer" : "Seller"}</th>
+                <th>{currentUser.isSeller ? "Customer" : "Provider"}</th>
                 <th>Last Message</th>
                 <th>Date</th>
                 <th>Action</th>

@@ -4,7 +4,7 @@ import "../styles/CatCard.css";
 
 function CatCard({ card }) {
   return (
-    <Link to="/gigs?cat=">
+    <Link to={`/gigs?cat=${encodeURIComponent(card.title)}`}>
       <div className="catCard">
         <img src={card.img} alt="" />
         <span className="catTitle">{card.title}</span>

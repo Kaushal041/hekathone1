@@ -36,21 +36,21 @@ function MyGigs() {
       {isLoading ? (
         <div className="loadingPlaceholder">
           <div className="spinner"></div>
-          <div>Loading Gigs...</div>
+          <div>Loading Services...</div>
         </div>
       ) : error ? (
         <div className="loadingPlaceholder">
           <div className="errorMessage">
-            Sorry, something went wrong while loading your gigs.
+            Sorry, something went wrong while loading your services.
           </div>
         </div>
       ) : (
         <div className="myGigsContainer">
           <div className="myGigsTitle">
-            <h1>Gigs</h1>
+            <h1>{currentUser.isSeller ? "My Services" : "My Posted Jobs"}</h1>
             {currentUser.isSeller && (
               <Link to="/add">
-                <button className="Buttons">Add New Gig</button>
+                <button className="Buttons">Post Job</button>
               </Link>
             )}
           </div>
@@ -59,7 +59,7 @@ function MyGigs() {
               <th>Image</th>
               <th>Title</th>
               <th>Price</th>
-              <th>Sales</th>
+              <th>Completed Jobs</th>
               <th>Action</th>
             </tr>
             {data.map((gig) => (

@@ -29,8 +29,11 @@ function Navbar() {
       <div className="navContainer">
         <div className="logo">
           <Link className="link" to="/">
-            {/* <span>CodeLance</span> */}
             <img className="logoImg" src={logo} alt="" />
+            <div className="brandText">
+              <span className="brandName">TaskLink</span>
+              <span className="brandTagline">Find skilled help instantly</span>
+            </div>
           </Link>
         </div>
         <div className="links">
@@ -38,11 +41,11 @@ function Navbar() {
             Hire Developers
           </Link> */}
           <Link className="nav_links" to="/gigs?cat">
-            Discover Gigs
+            Browse Tasks
           </Link>
           {!currentUser?.isSeller && (
             <Link className="nav_links" to="/register">
-              Become Developer
+              Become a Worker
             </Link>
           )}
           {currentUser ? (
@@ -54,15 +57,15 @@ function Navbar() {
                   {currentUser.isSeller && (
                     <>
                       <Link className="options_link" to="/myGigs">
-                        My Gigs
+                        My Dashboard
                       </Link>
                       <Link className="options_link" to="/add">
-                        Add Gigs
+                        Post Job
                       </Link>
                     </>
                   )}
                   <Link className="options_link" to="/orders">
-                    Orders
+                    Bookings
                   </Link>
                   <Link className="options_link" to="/messages">
                     Messages

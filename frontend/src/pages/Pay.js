@@ -141,7 +141,7 @@ const Pay = () => {
     <div className="pay">
       <div className="payCard">
         <h2>Secure Payment</h2>
-        <p>Complete your order safely with Razorpay.</p>
+        <p>Complete your booking safely with Razorpay.</p>
 
         {isPreparing && <div className="payInfo">Preparing payment service...</div>}
 

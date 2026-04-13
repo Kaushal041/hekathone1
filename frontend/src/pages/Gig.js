@@ -8,6 +8,48 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import newRequest from "../utils/newRequest";
 
+const bidSamples = [
+  {
+    id: 1,
+    workerName: "Ravi Sharma",
+    rating: 4.9,
+    completedJobs: 186,
+    bidAmount: 1100,
+    proposal: "I can finish this task within 24 hours with tools included.",
+    performanceScore: 94,
+    priceScore: 88,
+  },
+  {
+    id: 2,
+    workerName: "Neha Verma",
+    rating: 4.8,
+    completedJobs: 142,
+    bidAmount: 980,
+    proposal: "Available today evening. I have handled similar jobs in your area.",
+    performanceScore: 90,
+    priceScore: 92,
+  },
+  {
+    id: 3,
+    workerName: "Arjun Patel",
+    rating: 4.7,
+    completedJobs: 109,
+    bidAmount: 1250,
+    proposal: "Detailed execution with quality checks and post-job support.",
+    performanceScore: 89,
+    priceScore: 80,
+  },
+];
+
+const withFinalScores = bidSamples.map((bid) => ({
+  ...bid,
+  finalScore: Math.round(bid.performanceScore * 0.6 + bid.priceScore * 0.4),
+}));
+
+const bestMatchId = withFinalScores.reduce((top, current) =>
+  current.finalScore > top.finalScore ? current : top
+).id;
+
 function Gig() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -72,7 +114,7 @@ function Gig() {
     }
 
     if (currentUser.isSeller) {
-      setContactError("Please use a buyer account to contact this seller.");
+      setContactError("Please use a customer account to contact this provider.");
       return;
     }
 
@@ -133,7 +175,7 @@ function Gig() {
         <div className="gigContainer">
           <div className="gigLeft">
             <span className="breadcrumbs">
-                CodeLance {">"} {data.cat} {">"} {sellerData?.username || "Developer"}
+              TaskLink {">"} {data.cat} {">"} {sellerData?.username || "Provider"}
             </span>
             <h1>{data.title}</h1>
             <div className="gigUser">
@@ -142,7 +184,7 @@ function Gig() {
                   src={sellerData?.img || data.cover}
                 alt=""
               />
-                <span>{sellerData?.username || "Developer"}</span>
+                <span>{sellerData?.username || "Provider"}</span>
               <div className="gigStars">
                 <img src={star} alt="" />
                 <span>{data.totalStars}</span>
@@ -151,10 +193,10 @@ function Gig() {
             <div className="gigSlider">
               <img src={data.cover} alt="" />
             </div>
-            <h2>About This Gig</h2>
+            <h2>About This Service</h2>
             <p>{data.desc}</p>
             <div className="seller">
-              <h2>About The Seller</h2>
+              <h2>About The Provider</h2>
               <div className="gigSellerUser">
                 <img
                   className="gigSellerImg"
@@ -162,13 +204,13 @@ function Gig() {
                   alt=""
                 />
                 <div className="gigInfo">
-                  <span>{sellerData?.username || "Developer"}</span>
+                  <span>{sellerData?.username || "Provider"}</span>
                   <div className="gigStars">
                     <img src={star} alt="" />
                     <span>{data.totalStars}</span>
                   </div>
                   <button className="Buttons1" onClick={handleContact}>
-                    Contact Me
+                    Contact Provider
                   </button>
                   {contactError && <p>{contactError}</p>}
                 </div>
@@ -189,7 +231,7 @@ function Gig() {
                   </div>
                   <div className="boxItem">
                     <span>Last delivery</span>
-                    <span>1 day</span>
+                    <span>Last completed micro job: 1 day ago</span>
                   </div>
                   <div className="boxItem">
                     <span>Languages</span>
@@ -201,7 +243,7 @@ function Gig() {
               </div>
             </div>
             <div className="reviews">
-              <h2>Reviews</h2>
+              <h2>Customer Ratings</h2>
               <div className="reviewsItem">
                 <div className="reviewUser">
                   <img
@@ -212,10 +254,6 @@ function Gig() {
                   <div className="gigInfo">
                     <span>Garner David</span>
                     <div className="country">
-                      <img
-                        src="https://fiverr-dev-res.cloudinary.com/general_assets/flags/1f1fa-1f1f8.png"
-                        alt=""
-                      />
                       <span>United States</span>
                     </div>
                   </div>
@@ -228,13 +266,9 @@ function Gig() {
                   <span>4</span>
                 </div>
                 <p>
-                  I just want to say that art_with_ai was the first, and after
-                  this, the only artist Ill be using on Fiverr. Communication
-                  was amazing, each and every day he sent me images that I was
-                  free to request changes to. They listened, understood, and
-                  delivered above and beyond my expectations. I absolutely
-                  recommend this gig, and know already that Ill be using it
-                  again very very soon
+                  Great experience. The provider communicated clearly, arrived
+                  on time, and completed the task exactly as requested. I would
+                  definitely hire again for similar micro jobs.
                 </p>
               </div>
               <hr />
@@ -248,10 +282,6 @@ function Gig() {
                   <div className="gigInfo">
                     <span>Sidney Owen</span>
                     <div className="country">
-                      <img
-                        src="https://fiverr-dev-res.cloudinary.com/general_assets/flags/1f1e9-1f1ea.png"
-                        alt=""
-                      />
                       <span>Germany</span>
                     </div>
                   </div>
@@ -265,10 +295,8 @@ function Gig() {
                   <span>5</span>
                 </div>
                 <p>
-                  The designer took my photo for my book cover to the next
-                  level! Professionalism and ease of working with designer along
-                  with punctuality is above industry standards!! Whatever your
-                  project is, you need this designer!
+                  Very professional service and quick turnaround. The quality
+                  matched the agreed scope and pricing was fair.
                 </p>
               </div>
               <hr />
@@ -282,10 +310,6 @@ function Gig() {
                   <div className="gigInfo">
                     <span>Lyle Giles </span>
                     <div className="country">
-                      <img
-                        src="https://fiverr-dev-res.cloudinary.com/general_assets/flags/1f1fa-1f1f8.png"
-                        alt=""
-                      />
                       <span>United States</span>
                     </div>
                   </div>
@@ -299,13 +323,42 @@ function Gig() {
                   <span>5</span>
                 </div>
                 <p>
-                  Amazing work! Communication was amazing, each and every day he
-                  sent me images that I was free to request changes to. They
-                  listened, understood, and delivered above and beyond my
-                  expectations. I absolutely recommend this gig, and know
-                  already that Ill be using it again very very soon
+                  Smooth process from start to finish. Strong communication,
+                  transparent updates, and excellent completion quality.
                 </p>
               </div>
+            </div>
+
+            <div className="bidsSection">
+              <h2>Received Bids</h2>
+              {withFinalScores.map((bid) => (
+                <div className="bidCard" key={bid.id}>
+                  <div className="bidHeader">
+                    <div>
+                      <h3>{bid.workerName}</h3>
+                      <p>
+                        ⭐ {bid.rating} · {bid.completedJobs} completed jobs
+                      </p>
+                    </div>
+                    <div className="bidBadges">
+                      <span className="recommendedBadge">Recommended Worker</span>
+                      {bid.id === bestMatchId && (
+                        <span className="bestMatchBadge">Best Match</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="bidProposal">{bid.proposal}</p>
+
+                  <div className="bidScores">
+                    <span>Performance Score: {bid.performanceScore}</span>
+                    <span>Price Score: {bid.priceScore}</span>
+                    <span>Final Score: {bid.finalScore}</span>
+                  </div>
+
+                  <div className="bidAmount">Bid Amount: INR {bid.bidAmount}</div>
+                </div>
+              ))}
             </div>
           </div>
           <div className="gigRight">
@@ -317,33 +370,33 @@ function Gig() {
             <div className="gigDetails">
               <div className="gigItem">
                 <img src={clock} alt="" height="20px" />
-                <span>2 Days Delivery</span>
+                <span>Estimated completion: 2 days</span>
               </div>
               <div className="gigItem">
                 <img src={recycle} alt="" height="20px" />
-                <span>{data.revisionNumber} Revisions</span>
+                <span>{data.revisionNumber} revision(s)</span>
               </div>
             </div>
             <div className="features">
               <div className="gigItem">
                 <img className="checkIcon" src={check} alt="" />
-                <span>Prompt writing</span>
+                <span>Skill-based task delivery</span>
               </div>
               <div className="gigItem">
                 <img className="checkIcon" src={check} alt="" />
-                <span>Artwork delivery</span>
+                <span>Progress and status updates</span>
               </div>
               <div className="gigItem">
                 <img className="checkIcon" src={check} alt="" />
-                <span>Image upscaling</span>
+                <span>Secure payment confirmation</span>
               </div>
               <div className="gigItem">
                 <img className="checkIcon" src={check} alt="" />
-                <span>Additional design</span>
+                <span>Reliability and completion tracking</span>
               </div>
             </div>
             <Link to={`/pay/${id}`}>
-              <button className="continueButton">Continue</button>
+              <button className="continueButton">Book This Service</button>
             </Link>
           </div>
         </div>

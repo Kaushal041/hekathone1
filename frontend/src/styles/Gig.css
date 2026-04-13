@@ -133,6 +133,74 @@ hr {
 .reviews {
   margin-top: 50px;
 }
+
+.bidsSection {
+  margin-top: 36px;
+}
+
+.bidCard {
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  background: #fff;
+}
+
+.bidHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.bidHeader h3 {
+  margin: 0;
+}
+
+.bidHeader p {
+  margin: 4px 0 0;
+}
+
+.bidBadges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.recommendedBadge,
+.bestMatchBadge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.recommendedBadge {
+  background: #e7f3ff;
+  color: #0a5fb8;
+}
+
+.bestMatchBadge {
+  background: #e8f8ec;
+  color: #1d7b3a;
+}
+
+.bidProposal {
+  margin: 12px 0;
+}
+
+.bidScores {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: #333;
+}
+
+.bidAmount {
+  margin-top: 12px;
+  font-weight: 700;
+}
 .reviewsItem {
   display: flex;
   flex-direction: column;

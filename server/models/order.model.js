@@ -19,6 +19,30 @@ const OrderSchema = new Schema(
       type: Number,
       required: true,
     },
+    paymentGateway: {
+      type: String,
+      required: true,
+      default: "razorpay",
+    },
+    razorpayOrderId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    razorpayPaymentId: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
+    paidAt: {
+      type: Date,
+      required: false,
+      default: null,
+    },
     sellerId: {
       type: String,
       required: true,
@@ -30,10 +54,6 @@ const OrderSchema = new Schema(
     isCompleted: {
       type: Boolean,
       default: false,
-    },
-    payment_intent: {
-      type: String,
-      required: true,
     },
   },
   {

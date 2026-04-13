@@ -59,24 +59,24 @@ function Gigs() {
   return (
     <div className="gigs">
       <div className="gigsContainer">
-        <span className="breadcrumbs">Codelance {">"} Development</span>
-        <h1>Development</h1>
+        <span className="breadcrumbs">TaskLink {">"} Micro Jobs Marketplace</span>
+        <h1>Micro Jobs Marketplace</h1>
         <p>
-          Explore the boundaries of development and technology with CodeLance.
+          Find trusted providers for repairs, tutoring, design, and technical help.
         </p>
         <div className="menu">
           <div className="left">
-            <span>Budget</span>
-            <input ref={minRef} type="number" placeholder="min" />
-            <input ref={maxRef} type="number" placeholder="max" />
+            <span>Budget (INR)</span>
+            <input ref={minRef} type="number" placeholder="min amount" />
+            <input ref={maxRef} type="number" placeholder="max amount" />
             <button className="budgetbutton" onClick={apply}>
-              Apply
+              Apply Filters
             </button>
           </div>
           <div className="right">
-            <span className="sortBy">Sort by :</span>
+            <span className="sortBy">Sort by:</span>
             <span className="sortType" onClick={() => setOpen(!open)}>
-              {sort === "sales" ? "Best Selling" : "Newest"}
+              {sort === "sales" ? "Top Rated" : "Newest"}
 
               <img src={downIcon} alt="" onClick={() => setOpen(!open)} />
             </span>
@@ -85,7 +85,7 @@ function Gigs() {
                 {sort === "sales" ? (
                   <span onClick={() => reSort("createdAt")}>Newest</span>
                 ) : (
-                  <span onClick={() => reSort("sales")}>Best Selling</span>
+                  <span onClick={() => reSort("sales")}>Top Rated</span>
                 )}
                 <span onClick={() => reSort("sales")}>Popular</span>
               </div>
@@ -124,7 +124,7 @@ function Gigs() {
             : error
             ? "Something went wrong!"
             : data?.length === 0
-            ? "No developers found for this filter yet. Try clearing budget filters or add a new gig as a seller."
+            ? "No providers found for this filter. Try broadening your budget or posting a new service."
             : data.map((gig) => <GigCard key={gig._id} item={gig} />)}
         </div>
       </div>

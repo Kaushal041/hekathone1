@@ -1,6 +1,5 @@
 /* Ensure box-sizing for all elements */
 .pay *,
-.StripeElement,
 .pay form {
   box-sizing: border-box;
 }
@@ -47,7 +46,6 @@
   text-align: center;
 }
 
-.StripeElement,
 .pay form {
   background: #fff;
   padding: 32px 24px;
@@ -93,7 +91,6 @@
 
 /* Responsive adjustments */
 @media (max-width: 900px) {
-  .StripeElement,
   .pay form {
     padding: 18px 8px;
     max-width: 350px;

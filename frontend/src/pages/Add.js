@@ -4,23 +4,29 @@ import { gigReducer, INITIAL_STATE } from "../utils/gigReducer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import newRequest from "../utils/newRequest";
 import "../styles/Add.css";
+import { getCategoryImage } from "../utils/categoryMedia";
+import { useNavigate } from "react-router-dom";
 
 const COVER_OPTIONS = [
   {
-    name: "Creative Workspace",
-    url: "https://images.pexels.com/photos/34140/pexels-photo.jpg",
+    name: "Home Repairs",
+    url: getCategoryImage("Home Repairs"),
   },
   {
-    name: "Team Collaboration",
-    url: "https://images.pexels.com/photos/3183183/pexels-photo-3183183.jpeg",
+    name: "Plumbing",
+    url: getCategoryImage("Plumbing"),
   },
   {
-    name: "Modern Office",
-    url: "https://images.pexels.com/photos/927022/pexels-photo-927022.jpeg",
+    name: "Tutoring",
+    url: getCategoryImage("Tutoring"),
   },
   {
-    name: "Freelancer Desk",
-    url: "https://images.pexels.com/photos/5077393/pexels-photo-5077393.jpeg",
+    name: "Graphic Design",
+    url: getCategoryImage("Graphic Design"),
+  },
+  {
+    name: "Technical Help",
+    url: getCategoryImage("Technical Help"),
   },
 ];
 
@@ -29,6 +35,10 @@ const Add = () => {
   // const [files, setFiles] = useState([]);
   // const [uploading, setUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [requiredSkills, setRequiredSkills] = useState("");
+  const [location, setLocation] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,10 +50,6 @@ const Add = () => {
       { key: "cat", label: "Category" },
       { key: "cover", label: "Cover Image" },
       { key: "desc", label: "Description" },
-      { key: "shortTitle", label: "Service Title" },
-      { key: "shortDesc", label: "Short Description" },
-      { key: "deliveryTime", label: "Delivery Time" },
-      { key: "revisionNumber", label: "Revision Number" },
       { key: "price", label: "Price" },
     ];
 
@@ -63,19 +69,57 @@ const Add = () => {
       return;
     }
 
-    mutation.mutate(state);
+    if (!requiredSkills || !location || !deadline) {
+      setErrorMsg("Please fill Required Skills, Location, and Deadline.");
+      return;
+    }
+
+    if (Number(state.price) <= 0) {
+      setErrorMsg("Budget must be greater than 0.");
+      return;
+    }
+
+    const deadlineDate = new Date(deadline);
+    const now = new Date();
+    if (deadlineDate <= now) {
+      setErrorMsg("Deadline must be a future date.");
+      return;
+    }
+
+    const dayDiff = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
+    const deliveryDays = Number.isFinite(dayDiff) && dayDiff > 0 ? dayDiff : 1;
+
+    const payload = {
+      ...state,
+      shortTitle: requiredSkills,
+      shortDesc: `Location: ${location}`,
+      deliveryTime: deliveryDays,
+      revisionNumber: 1,
+      desc: `${state.desc}\n\nRequired Skills: ${requiredSkills}\nLocation: ${location}\nDeadline: ${deadline}`,
+    };
+
+    mutation.mutate(payload);
     // navigate("/mygigs")
   };
 
   const [state, dispatch] = useReducer(gigReducer, {
     ...INITIAL_STATE,
-    cover: COVER_OPTIONS[1].url,
+    cat: "Home Repairs",
+    cover: COVER_OPTIONS[0].url,
   });
 
   const handleChange = (e) => {
     dispatch({
       type: "CHANGE_INPUT",
       payload: { name: e.target.name, value: e.target.value },
+    });
+  };
+
+  const handleCategoryChange = (e) => {
+    const selectedCategory = e.target.value;
+    dispatch({
+      type: "CHANGE_INPUT",
+      payload: { name: "cat", value: selectedCategory },
     });
   };
 
@@ -121,6 +165,7 @@ const Add = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["myGigs"]);
+      navigate("/mygigs");
     },
   });
 
@@ -133,7 +178,7 @@ const Add = () => {
   return (
     <div className="add">
       <div className="container">
-        <h1>Add New Gig</h1>
+        <h1>Post a Job</h1>
         {errorMsg && (
           <div
             className="addError"
@@ -154,23 +199,23 @@ const Add = () => {
 
         <div className="sections">
           <div className="info">
-            <label htmlFor="">Title</label>
+            <label htmlFor="">Job Title</label>
             <input
               type="text"
               name="title"
-              placeholder="e.g. I will do something I'm really good at"
+              placeholder="e.g. Need AC repair for home bedroom"
               onChange={handleChange}
+              required
             />
             <label htmlFor="">Category</label>
-            <select name="cat" id="cat" onChange={handleChange}>
-              <option value="UI/UX Design">UI/UX Design</option>
-              <option value="AI-Powered Website">AI-Powered Website</option>
-              <option value="Web Development">Web Development</option>
-              <option value="Mobile App Development">
-                Mobile App Development
-              </option>
+            <select name="cat" id="cat" value={state.cat} onChange={handleCategoryChange}>
+              <option value="Home Repairs">Home Repairs</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Tutoring">Tutoring</option>
+              <option value="Graphic Design">Graphic Design</option>
+              <option value="Technical Help">Technical Help</option>
             </select>
-            <label htmlFor="">Cover Image</label>
+            <label htmlFor="">Category Photo</label>
             <select
               name="cover"
               value={state.cover}
@@ -204,43 +249,50 @@ const Add = () => {
             <textarea
               name="desc"
               id=""
-              placeholder="Brief descriptions to introduce your service to customers"
+              placeholder="Explain task details, preferred timing, and expected outcome"
               cols="0"
               rows="16"
               onChange={handleChange}
+              required
             ></textarea>
           </div>
           <div className="details">
-            <label htmlFor="">Service Title</label>
-            <input
-              type="text"
-              name="shortTitle"
-              placeholder="e.g. One-page web design"
-              onChange={handleChange}
-            />
-            <label htmlFor="">Short Description</label>
-            <textarea
-              name="shortDesc"
-              onChange={handleChange}
-              id=""
-              placeholder="Short description of your service"
-              cols="30"
-              rows="10"
-            ></textarea>
-            <label htmlFor="">Delivery Time (e.g. 3 days)</label>
-            <input type="number" name="deliveryTime" onChange={handleChange} />
-            <label htmlFor="">Revision Number</label>
+            <label htmlFor="">Budget (INR)</label>
             <input
               type="number"
-              name="revisionNumber"
               onChange={handleChange}
+              name="price"
+              placeholder="e.g. 1200"
+              min="1"
+              required
             />
-            <label htmlFor="">Price</label>
-            <input type="number" onChange={handleChange} name="price" />
+            <label htmlFor="">Required Skills</label>
+            <input
+              type="text"
+              value={requiredSkills}
+              placeholder="e.g. AC servicing, wiring inspection"
+              onChange={(e) => setRequiredSkills(e.target.value)}
+              required
+            />
+            <label htmlFor="">Location</label>
+            <input
+              type="text"
+              value={location}
+              placeholder="e.g. Indore, Vijay Nagar"
+              onChange={(e) => setLocation(e.target.value)}
+              required
+            />
+            <label htmlFor="">Deadline</label>
+            <input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              required
+            />
           </div>
         </div>
         <button className="createButton" onClick={handleSubmit}>
-          Create
+          Post Job
         </button>
       </div>
     </div>

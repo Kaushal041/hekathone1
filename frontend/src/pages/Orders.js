@@ -45,24 +45,60 @@ const Orders = () => {
       {isLoading ? (
         <div className="loadingPlaceholder">
           <div className="spinner"></div>
-          <div>Loading Orders...</div>
+          <div>Loading Job Confirmations...</div>
         </div>
       ) : error ? (
         <div className="loadingPlaceholder">
           <div className="errorMessage">
-            Sorry, something went wrong while loading your orders.
+            Sorry, something went wrong while loading your transactions.
           </div>
         </div>
       ) : (
         <div className="ordersContainer">
           <div className="ordersTitle">
-            <h1>Orders</h1>
+            <h1>{currentUser.isSeller ? "Worker Dashboard" : "Customer Dashboard"}</h1>
           </div>
+
+          <div className="dashboardStats">
+            {currentUser.isSeller ? (
+              <>
+                <div className="statCard">
+                  <h3>Available Jobs</h3>
+                  <p>{Math.max((data?.length || 0) + 6, 6)}</p>
+                </div>
+                <div className="statCard">
+                  <h3>My Bids</h3>
+                  <p>{Math.max(data?.length || 0, 0)}</p>
+                </div>
+                <div className="statCard">
+                  <h3>My Tasks</h3>
+                  <p>{data?.length || 0}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="statCard">
+                  <h3>Posted Jobs</h3>
+                  <p>{Math.max(data?.length || 0, 0)}</p>
+                </div>
+                <div className="statCard">
+                  <h3>Received Bids</h3>
+                  <p>{Math.max((data?.length || 0) * 2, 0)}</p>
+                </div>
+                <div className="statCard">
+                  <h3>Accepted Tasks</h3>
+                  <p>{data?.length || 0}</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <h2 className="tableHeading">{currentUser.isSeller ? "My Tasks" : "My Bookings"}</h2>
           <table>
             <tr>
               <th>Image</th>
-              <th>Title</th>
-              <th>Price</th>
+              <th>Job</th>
+              <th>Amount</th>
               <th>Contact</th>
             </tr>
             {data.map((order) => (

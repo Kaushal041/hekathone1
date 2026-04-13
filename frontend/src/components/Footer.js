@@ -9,7 +9,7 @@ function Footer() {
       <div className="footerContainer">
         <div className="top">
           <Link className="link" to="/">
-            <img src={logo} height="40px" alt="Codelance" />
+            <img src={logo} height="40px" alt="TaskLink" />
           </Link>
           {/* <div className="footerItems">
             <h2>About</h2>
@@ -19,8 +19,8 @@ function Footer() {
         </div>
 
         <div className="bottom">
-          <span>© 2025 CodeLance. All rights reserved.</span>
-          <span>Made by Akshat Jalan.</span>
+          <span>© 2026 TaskLink. Powering trusted micro jobs.</span>
+          <span>Skill monetization for providers and quick help for customers.</span>
         </div>
       </div>
     </div>

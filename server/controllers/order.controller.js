@@ -115,7 +115,8 @@ export const createRazorpayOrder = async (req, res, next) => {
     const razorpayOrder = await razorpay.orders.create({
       amount: amountInPaise,
       currency: "INR",
-      receipt: `gig_${gig._id}_${Date.now()}`,
+      // Razorpay receipt must be short (max 40 chars).
+      receipt: `r_${Date.now()}`,
       notes: {
         gigId: gig._id.toString(),
         buyerId: req.userId,

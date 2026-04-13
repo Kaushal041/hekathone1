@@ -2,6 +2,8 @@ import React from "react";
 import "../styles/Home.css";
 import { Link } from "react-router-dom";
 import { getCategoryImage } from "../utils/categoryMedia";
+import { useQuery } from "@tanstack/react-query";
+import newRequest from "../utils/newRequest";
 
 const categories = [
   {
@@ -36,13 +38,76 @@ const categories = [
   },
 ];
 
-const featuredWorkers = [
-  { name: "Ravi Sharma", skill: "Home Repairs", rating: 4.9, jobs: 186 },
-  { name: "Neha Verma", skill: "Math Tutoring", rating: 4.8, jobs: 142 },
-  { name: "Arjun Patel", skill: "Tech Setup", rating: 4.9, jobs: 211 },
-];
-
 function Home() {
+  const { data: gigsData = [], isLoading: gigsLoading } = useQuery({
+    queryKey: ["featuredWorkerGigs"],
+    queryFn: () =>
+      newRequest.get("/gigs?sort=sales").then((res) => {
+        return res.data;
+      }),
+  });
+
+  const { data: featuredWorkers = [], isLoading: workersLoading } = useQuery({
+    queryKey: ["featuredWorkers", gigsData.length],
+    enabled: gigsData.length > 0,
+    queryFn: async () => {
+      const workerPostMap = gigsData.reduce((acc, gig) => {
+        const workerId = String(gig.userId);
+        if (!acc[workerId]) {
+          acc[workerId] = {
+            posts: 0,
+            totalSales: 0,
+            categoryCount: {},
+          };
+        }
+
+        acc[workerId].posts += 1;
+        acc[workerId].totalSales += Number(gig.sales || 0);
+        acc[workerId].categoryCount[gig.cat] =
+          (acc[workerId].categoryCount[gig.cat] || 0) + 1;
+
+        return acc;
+      }, {});
+
+      const rankedIds = Object.keys(workerPostMap)
+        .sort((a, b) => {
+          const aData = workerPostMap[a];
+          const bData = workerPostMap[b];
+          if (bData.posts !== aData.posts) return bData.posts - aData.posts;
+          return bData.totalSales - aData.totalSales;
+        })
+        .slice(0, 8);
+
+      const workers = await Promise.all(
+        rankedIds.map(async (workerId) => {
+          try {
+            const user = await newRequest.get(`/users/${workerId}`).then((res) => res.data);
+            const stats = workerPostMap[workerId];
+            const topCategory = Object.entries(stats.categoryCount).sort(
+              (a, b) => b[1] - a[1]
+            )[0]?.[0];
+
+            if (!user?.isSeller) return null;
+
+            return {
+              name: user.username,
+              skill: topCategory || "General Services",
+              rating: Number(user.rating || 4.5).toFixed(1),
+              jobs: Number(user.completedJobs || stats.posts),
+              posts: stats.posts,
+            };
+          } catch (_err) {
+            return null;
+          }
+        })
+      );
+
+      return workers.filter(Boolean).slice(0, 3);
+    },
+  });
+
+  const isFeaturedLoading = gigsLoading || workersLoading;
+
   return (
     <>
       <div className="homeContainer">
@@ -105,21 +170,50 @@ function Home() {
       <section className="homeSection">
         <h2>Featured Workers</h2>
         <div className="workersGrid">
-          {featuredWorkers.map((worker) => (
-            <div className="workerCard" key={worker.name}>
+          {isFeaturedLoading &&
+            [1, 2, 3].map((item) => (
+              <div className="workerCard" key={`worker-skeleton-${item}`}>
+                <div className="workerTop">
+                  <div>
+                    <h3>Loading...</h3>
+                    <p>Fetching real worker posts</p>
+                  </div>
+                </div>
+                <div className="workerStats">
+                  <span>Loading score</span>
+                  <span>Loading jobs</span>
+                </div>
+              </div>
+            ))}
+
+          {!isFeaturedLoading && featuredWorkers.length === 0 && (
+            <div className="workerCard">
               <div className="workerTop">
                 <div>
-                  <h3>{worker.name}</h3>
-                  <p>{worker.skill}</p>
+                  <h3>No workers yet</h3>
+                  <p>Featured workers will appear after real job posts.</p>
                 </div>
-                <span className="topBadge">Top Rated</span>
-            </div>
-              <div className="workerStats">
-                <span>⭐ {worker.rating}</span>
-                <span>{worker.jobs} jobs completed</span>
               </div>
             </div>
-          ))}
+          )}
+
+          {!isFeaturedLoading &&
+            featuredWorkers.map((worker) => (
+              <div className="workerCard" key={worker.name}>
+                <div className="workerTop">
+                  <div>
+                    <h3>{worker.name}</h3>
+                    <p>{worker.skill}</p>
+                  </div>
+                  <span className="topBadge">Top Rated</span>
+                </div>
+                <div className="workerStats">
+                  <span>⭐ {worker.rating}</span>
+                  <span>{worker.jobs} jobs completed</span>
+                </div>
+                <div className="workerMeta">{worker.posts} real posts</div>
+              </div>
+            ))}
         </div>
       </section>
     </>

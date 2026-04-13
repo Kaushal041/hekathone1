@@ -201,6 +201,12 @@ hr {
   margin-top: 12px;
   font-weight: 700;
 }
+
+.bidReason {
+  margin-top: 10px;
+  color: #2d405f;
+  font-weight: 500;
+}
 .reviewsItem {
   display: flex;
   flex-direction: column;

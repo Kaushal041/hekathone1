@@ -33,6 +33,46 @@ const userSchema = new Schema(
       type: String,
       required: false,
     },
+    skills: {
+      type: [String],
+      default: [],
+    },
+    rating: {
+      type: Number,
+      default: 4.5,
+    },
+    completedJobs: {
+      type: Number,
+      default: 0,
+    },
+    onTimeRate: {
+      type: Number,
+      default: 70,
+    },
+    acceptanceRate: {
+      type: Number,
+      default: 75,
+    },
+    cancellationRate: {
+      type: Number,
+      default: 5,
+    },
+    responseTimeScore: {
+      type: Number,
+      default: 70,
+    },
+    reliabilityScore: {
+      type: Number,
+      default: 72,
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+    },
+    location: {
+      type: String,
+      default: "",
+    },
     isSeller: {
       type: Boolean,
       default: false,

@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import { gigReducer, INITIAL_STATE } from "../utils/gigReducer";
 // import upload from "../../utils/upload";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,6 +6,7 @@ import newRequest from "../utils/newRequest";
 import "../styles/Add.css";
 import { getCategoryImage } from "../utils/categoryMedia";
 import { useNavigate } from "react-router-dom";
+import { parseVoiceTranscript } from "../utils/voiceParser";
 
 const COVER_OPTIONS = [
   {
@@ -38,7 +39,52 @@ const Add = () => {
   const [requiredSkills, setRequiredSkills] = useState("");
   const [location, setLocation] = useState("");
   const [deadline, setDeadline] = useState("");
+  const [transcript, setTranscript] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeechSupported, setIsSpeechSupported] = useState(true);
+  const [voiceError, setVoiceError] = useState("");
+  const recognitionRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const SpeechRecognitionClass =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognitionClass) {
+      setIsSpeechSupported(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognitionClass();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-IN";
+
+    recognition.onresult = (event) => {
+      let fullText = "";
+      for (let i = 0; i < event.results.length; i++) {
+        fullText += `${event.results[i][0].transcript} `;
+      }
+      setTranscript(fullText.trim());
+    };
+
+    recognition.onerror = (event) => {
+      setVoiceError(`Voice error: ${event.error}`);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -99,7 +145,6 @@ const Add = () => {
     };
 
     mutation.mutate(payload);
-    // navigate("/mygigs")
   };
 
   const [state, dispatch] = useReducer(gigReducer, {
@@ -128,6 +173,74 @@ const Add = () => {
       type: "CHANGE_INPUT",
       payload: { name: "cover", value: e.target.value },
     });
+  };
+
+  const handleStartRecording = () => {
+    setVoiceError("");
+    if (!recognitionRef.current) {
+      setVoiceError("Voice input not supported, please type manually");
+      return;
+    }
+
+    try {
+      recognitionRef.current.start();
+      setIsListening(true);
+    } catch (_err) {
+      setVoiceError("Unable to start recording. Please try again.");
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+    }
+  };
+
+  const handleFillFromVoice = () => {
+    if (!transcript.trim()) {
+      setVoiceError("Please record or type transcript first.");
+      return;
+    }
+
+    const parsed = parseVoiceTranscript(transcript);
+
+    if (parsed.title) {
+      dispatch({
+        type: "CHANGE_INPUT",
+        payload: { name: "title", value: parsed.title },
+      });
+    }
+
+    if (parsed.description) {
+      dispatch({
+        type: "CHANGE_INPUT",
+        payload: { name: "desc", value: parsed.description },
+      });
+    }
+
+    if (parsed.category) {
+      dispatch({
+        type: "CHANGE_INPUT",
+        payload: { name: "cat", value: parsed.category },
+      });
+    }
+
+    if (parsed.budget > 0) {
+      dispatch({
+        type: "CHANGE_INPUT",
+        payload: { name: "price", value: parsed.budget },
+      });
+    }
+
+    if (parsed.location) {
+      setLocation(parsed.location);
+    }
+
+    if (parsed.skills.length > 0) {
+      setRequiredSkills(parsed.skills.join(", "));
+    }
+
+    setVoiceError("");
   };
 
   // const handleFeature = (e) => {
@@ -197,12 +310,61 @@ const Add = () => {
           </div>
         )}
 
+        <div className="voiceBox">
+          <div className="voiceTopRow">
+            <button
+              type="button"
+              className={`voiceBtn ${isListening ? "active" : ""}`}
+              onClick={handleStartRecording}
+              disabled={!isSpeechSupported || isListening}
+            >
+              {isListening ? "Listening..." : "Start Recording"}
+            </button>
+            <button
+              type="button"
+              className="voiceBtn stop"
+              onClick={handleStopRecording}
+              disabled={!isSpeechSupported || !isListening}
+            >
+              Stop Recording
+            </button>
+            <button
+              type="button"
+              className="voiceBtn fill"
+              onClick={handleFillFromVoice}
+              disabled={!isSpeechSupported}
+            >
+              Fill Job Form
+            </button>
+          </div>
+
+          <label htmlFor="voiceTranscript">Voice Transcript</label>
+          <textarea
+            id="voiceTranscript"
+            value={transcript}
+            onChange={(e) => setTranscript(e.target.value)}
+            placeholder="Click Start Recording and speak your requirement..."
+            rows="4"
+          />
+
+          {!isSpeechSupported && (
+            <p className="voiceHint error">
+              Voice input not supported, please type manually
+            </p>
+          )}
+          {isSpeechSupported && !voiceError && (
+            <p className="voiceHint">Use your mic: Click start recording, speak, then fill job form.</p>
+          )}
+          {voiceError && <p className="voiceHint error">{voiceError}</p>}
+        </div>
+
         <div className="sections">
           <div className="info">
             <label htmlFor="">Job Title</label>
             <input
               type="text"
               name="title"
+              value={state.title}
               placeholder="e.g. Need AC repair for home bedroom"
               onChange={handleChange}
               required
@@ -248,6 +410,7 @@ const Add = () => {
             <label htmlFor="">Description</label>
             <textarea
               name="desc"
+              value={state.desc}
               id=""
               placeholder="Explain task details, preferred timing, and expected outcome"
               cols="0"
@@ -262,6 +425,7 @@ const Add = () => {
               type="number"
               onChange={handleChange}
               name="price"
+              value={state.price || ""}
               placeholder="e.g. 1200"
               min="1"
               required

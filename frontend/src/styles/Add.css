@@ -197,3 +197,70 @@ form.add button {
   width: 100%;
   margin-top: 20px;
 }
+
+.voiceBox {
+  background: #f4f8ff;
+  border: 1px solid #d6e4ff;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.voiceTopRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.voiceBtn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  background: #0d6efd;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.voiceBtn.active {
+  background: #198754;
+}
+
+.voiceBtn.stop {
+  background: #dc3545;
+}
+
+.voiceBtn.fill {
+  background: #6f42c1;
+}
+
+.voiceBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.voiceBox label {
+  font-weight: 600;
+  color: #23375b;
+}
+
+.voiceBox textarea {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #c8d8f5;
+  border-radius: 8px;
+  padding: 10px;
+  resize: vertical;
+  background: #fff;
+}
+
+.voiceHint {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  color: #35507e;
+}
+
+.voiceHint.error {
+  color: #b00020;
+}

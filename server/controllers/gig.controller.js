@@ -1,5 +1,6 @@
 import Gig from "../models/gig.model.js";
 import createError from "../utils/createError.js";
+import { parseVoiceTranscript } from "../utils/voiceParser.js";
 
 export const createGig = async (req, res, next) => {
   if (!req.isSeller)
@@ -60,6 +61,29 @@ export const getGigs = async (req, res, next) => {
   try {
     const gigs = await Gig.find(filters).sort({ [q.sort]: -1 });
     res.status(200).send(gigs);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const parseVoiceJob = async (req, res, next) => {
+  try {
+    const { transcript } = req.body;
+
+    if (!transcript || typeof transcript !== "string") {
+      return next(createError(400, "Transcript is required"));
+    }
+
+    const parsed = parseVoiceTranscript(transcript);
+
+    return res.status(200).json({
+      title: parsed.title,
+      category: parsed.category,
+      budget: parsed.budget,
+      location: parsed.location,
+      skills: parsed.skills,
+      description: parsed.description,
+    });
   } catch (err) {
     next(err);
   }

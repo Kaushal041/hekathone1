@@ -31,8 +31,8 @@ function Navbar() {
           <Link className="link" to="/">
             <img className="logoImg" src={logo} alt="" />
             <div className="brandText">
-              <span className="brandName">TaskLink</span>
-              <span className="brandTagline">Find skilled help instantly</span>
+              {/* <span className="brandName">TaskLink</span>
+              <span className="brandTagline">Find skilled help instantly</span> */}
             </div>
           </Link>
         </div>

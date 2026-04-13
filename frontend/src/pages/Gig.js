@@ -7,48 +7,7 @@ import star from "../assets/star.png";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import newRequest from "../utils/newRequest";
-
-const bidSamples = [
-  {
-    id: 1,
-    workerName: "Ravi Sharma",
-    rating: 4.9,
-    completedJobs: 186,
-    bidAmount: 1100,
-    proposal: "I can finish this task within 24 hours with tools included.",
-    performanceScore: 94,
-    priceScore: 88,
-  },
-  {
-    id: 2,
-    workerName: "Neha Verma",
-    rating: 4.8,
-    completedJobs: 142,
-    bidAmount: 980,
-    proposal: "Available today evening. I have handled similar jobs in your area.",
-    performanceScore: 90,
-    priceScore: 92,
-  },
-  {
-    id: 3,
-    workerName: "Arjun Patel",
-    rating: 4.7,
-    completedJobs: 109,
-    bidAmount: 1250,
-    proposal: "Detailed execution with quality checks and post-job support.",
-    performanceScore: 89,
-    priceScore: 80,
-  },
-];
-
-const withFinalScores = bidSamples.map((bid) => ({
-  ...bid,
-  finalScore: Math.round(bid.performanceScore * 0.6 + bid.priceScore * 0.4),
-}));
-
-const bestMatchId = withFinalScores.reduce((top, current) =>
-  current.finalScore > top.finalScore ? current : top
-).id;
+import RankedWorkers from "../components/RankedWorkers";
 
 function Gig() {
   const { id } = useParams();
@@ -66,6 +25,16 @@ function Gig() {
   });
 
   const sellerId = data?.userId;
+
+  const { data: recommendationData } = useQuery({
+    queryKey: ["recommendation", id],
+    queryFn: () =>
+      newRequest.get(`/jobs/${id}/recommendation`).then((res) => {
+        return res.data;
+      }),
+    enabled: !!id,
+  });
+  const rankedWorkers = recommendationData?.rankedWorkers || [];
 
   const { data: sellerData } = useQuery({
     queryKey: ["gigSeller", sellerId],
@@ -329,37 +298,7 @@ function Gig() {
               </div>
             </div>
 
-            <div className="bidsSection">
-              <h2>Received Bids</h2>
-              {withFinalScores.map((bid) => (
-                <div className="bidCard" key={bid.id}>
-                  <div className="bidHeader">
-                    <div>
-                      <h3>{bid.workerName}</h3>
-                      <p>
-                        ⭐ {bid.rating} · {bid.completedJobs} completed jobs
-                      </p>
-                    </div>
-                    <div className="bidBadges">
-                      <span className="recommendedBadge">Recommended Worker</span>
-                      {bid.id === bestMatchId && (
-                        <span className="bestMatchBadge">Best Match</span>
-                      )}
-                    </div>
-                  </div>
-
-                  <p className="bidProposal">{bid.proposal}</p>
-
-                  <div className="bidScores">
-                    <span>Performance Score: {bid.performanceScore}</span>
-                    <span>Price Score: {bid.priceScore}</span>
-                    <span>Final Score: {bid.finalScore}</span>
-                  </div>
-
-                  <div className="bidAmount">Bid Amount: INR {bid.bidAmount}</div>
-                </div>
-              ))}
-            </div>
+            <RankedWorkers rankedWorkers={rankedWorkers} />
           </div>
           <div className="gigRight">
             <div className="gigPrice">

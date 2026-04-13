@@ -12,6 +12,41 @@
   padding: 40px 0;
 }
 
+.payCard {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(50, 50, 93, 0.07), 0 1.5px 4px rgba(0, 0, 0, 0.07);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.payInfo {
+  background: #f5f7ff;
+  color: #1d2a6b;
+  border: 1px solid #d9e1ff;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.payError {
+  background: #ffeaea;
+  color: #b00020;
+  border: 1px solid #ffb3b3;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.payHint {
+  color: #666;
+  font-size: 0.92rem;
+  text-align: center;
+}
+
 .StripeElement,
 .pay form {
   background: #fff;
@@ -62,5 +97,15 @@
   .pay form {
     padding: 18px 8px;
     max-width: 350px;
+  }
+
+  .pay {
+    padding: 16px 8px;
+  }
+
+  .payCard {
+    padding: 16px;
+    max-width: 100%;
+    border-radius: 10px;
   }
 }

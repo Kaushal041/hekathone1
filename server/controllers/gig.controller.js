@@ -33,6 +33,43 @@ export const deleteGig = async (req, res, next) => {
   }
 };
 
+export const updateGig = async (req, res, next) => {
+  try {
+    const gig = await Gig.findById(req.params.id);
+
+    if (!gig) {
+      return next(createError(404, "Gig not found!"));
+    }
+
+    if (String(gig.userId) !== String(req.userId)) {
+      return next(createError(403, "You can edit only your gig!"));
+    }
+
+    const updatedGig = await Gig.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          title: req.body.title,
+          cat: req.body.cat,
+          desc: req.body.desc,
+          price: req.body.price,
+          cover: req.body.cover,
+          shortTitle: req.body.shortTitle,
+          shortDesc: req.body.shortDesc,
+          deliveryTime: req.body.deliveryTime,
+          revisionNumber: req.body.revisionNumber,
+          features: req.body.features,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(200).json(updatedGig);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getGig = async (req, res, next) => {
   try {
     const gig = await Gig.findById(req.params.id);

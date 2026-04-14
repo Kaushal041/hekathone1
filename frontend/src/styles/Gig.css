@@ -207,6 +207,45 @@ hr {
   color: #2d405f;
   font-weight: 500;
 }
+
+.editActions {
+  display: flex;
+  justify-content: flex-start;
+  margin: 10px 0 4px;
+}
+
+.editJobForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fcfcfc;
+}
+
+.editJobForm label {
+  font-weight: 600;
+  color: #333;
+}
+
+.editJobForm input,
+.editJobForm select,
+.editJobForm textarea {
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.editError {
+  color: #b00020;
+  font-weight: 600;
+  margin: 0;
+}
+
 .reviewsItem {
   display: flex;
   flex-direction: column;
@@ -327,6 +366,10 @@ hr {
   }
   .gig {
     margin: 20px;
+  }
+
+  .editJobForm {
+    width: 100%;
   }
 }
 

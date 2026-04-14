@@ -7,9 +7,9 @@ import newRequest from "../utils/newRequest";
 
 const categories = [
   {
-    name: "Repair",
+    name: "Home Repairs",
     icon: "🛠",
-    image: getCategoryImage("Repair"),
+    image: getCategoryImage("Home Repairs"),
   },
   {
     name: "Plumbing",

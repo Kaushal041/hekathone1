@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/Gig.css";
 import clock from "../assets/clock.png";
 import recycle from "../assets/recycle.png";
@@ -15,6 +15,15 @@ function Gig() {
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const queryClient = useQueryClient();
   const [contactError, setContactError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [editForm, setEditForm] = useState({
+    title: "",
+    cat: "",
+    desc: "",
+    price: "",
+    cover: "",
+  });
 
   const { isLoading, error, data } = useQuery({
     queryKey: ["gig"],
@@ -25,6 +34,18 @@ function Gig() {
   });
 
   const sellerId = data?.userId;
+
+  useEffect(() => {
+    if (data) {
+      setEditForm({
+        title: data.title || "",
+        cat: data.cat || "",
+        desc: data.desc || "",
+        price: data.price || "",
+        cover: data.cover || "",
+      });
+    }
+  }, [data]);
 
   const { data: recommendationData } = useQuery({
     queryKey: ["recommendation", id],
@@ -95,6 +116,59 @@ function Gig() {
     mutation.mutate();
   };
 
+  const handleEditChange = (e) => {
+    setEditForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const updateMutation = useMutation({
+    mutationFn: async (payload) => {
+      const res = await newRequest.put(`/gigs/${id}`, payload);
+      return res.data;
+    },
+    onSuccess: (updatedGig) => {
+      queryClient.invalidateQueries(["gig"]);
+      queryClient.invalidateQueries(["recommendation", id]);
+      queryClient.invalidateQueries(["myGigs"]);
+      setEditError("");
+      setIsEditing(false);
+      setEditForm({
+        title: updatedGig.title || "",
+        cat: updatedGig.cat || "",
+        desc: updatedGig.desc || "",
+        price: updatedGig.price || "",
+        cover: updatedGig.cover || "",
+      });
+    },
+    onError: (err) => {
+      setEditError(err?.response?.data || err?.message || "Unable to update job details.");
+    },
+  });
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+
+    if (!editForm.title || !editForm.cat || !editForm.desc || !editForm.price || !editForm.cover) {
+      setEditError("Please fill all job detail fields before saving.");
+      return;
+    }
+
+    updateMutation.mutate({
+      title: editForm.title,
+      cat: editForm.cat,
+      desc: editForm.desc,
+      price: Number(editForm.price),
+      cover: editForm.cover,
+      shortTitle: data?.shortTitle || "",
+      shortDesc: data?.shortDesc || "",
+      deliveryTime: data?.deliveryTime || 1,
+      revisionNumber: data?.revisionNumber || 1,
+      features: data?.features || [],
+    });
+  };
+
   // const userId = data?.userId;
 
   // const {
@@ -147,6 +221,49 @@ function Gig() {
               TaskLink {">"} {data.cat} {">"} {sellerData?.username || "Provider"}
             </span>
             <h1>{data.title}</h1>
+            {currentUser?._id === data.userId && (
+              <div className="editActions">
+                <button
+                  type="button"
+                  className="Buttons1"
+                  onClick={() => setIsEditing((prev) => !prev)}
+                >
+                  {isEditing ? "Cancel Edit" : "Edit Details"}
+                </button>
+              </div>
+            )}
+
+            {isEditing && currentUser?._id === data.userId && (
+              <form className="editJobForm" onSubmit={handleSaveEdit}>
+                <label>Job Title</label>
+                <input name="title" value={editForm.title} onChange={handleEditChange} />
+
+                <label>Category</label>
+                <select name="cat" value={editForm.cat} onChange={handleEditChange}>
+                  <option value="Home Repairs">Home Repairs</option>
+                  <option value="Plumbing">Plumbing</option>
+                  <option value="Tutoring">Tutoring</option>
+                  <option value="Graphic Design">Graphic Design</option>
+                  <option value="Technical Help">Technical Help</option>
+                </select>
+
+                <label>Cover Image URL</label>
+                <input name="cover" value={editForm.cover} onChange={handleEditChange} />
+
+                <label>Description</label>
+                <textarea name="desc" value={editForm.desc} onChange={handleEditChange} rows="6" />
+
+                <label>Budget (INR)</label>
+                <input name="price" type="number" value={editForm.price} onChange={handleEditChange} />
+
+                {editError && <p className="editError">{editError}</p>}
+
+                <button type="submit" className="continueButton">
+                  Save Changes
+                </button>
+              </form>
+            )}
+
             <div className="gigUser">
               <img
                 className="pp"

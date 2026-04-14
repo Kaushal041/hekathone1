@@ -5,6 +5,7 @@ import {
   getGig,
   getGigs,
   parseVoiceJob,
+  updateGig,
 } from "../controllers/gig.controller.js";
 import { verifyToken } from "../middleware/jwt.js";
 
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.post("/parse-voice", parseVoiceJob);
 router.post("/", verifyToken, createGig);
+router.put("/:id", verifyToken, updateGig);
 router.delete("/:id", verifyToken, deleteGig);
 router.get("/single/:id", getGig);
 router.get("/", getGigs);

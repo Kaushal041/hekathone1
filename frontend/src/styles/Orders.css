@@ -1,13 +1,17 @@
 .orders {
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   color: #555;
+  padding-bottom: 40px;
 }
 
 .ordersContainer {
-  width: 1200px;
+  width: min(1200px, 100%);
   padding: 50px 20px;
-  height: 50vh;
+  min-height: calc(100vh - 120px);
+  height: auto;
+  box-sizing: border-box;
 }
 
 .ordersTitle {
@@ -54,17 +58,166 @@
   cursor: pointer;
 }
 
+.allocatedSection {
+  margin-top: 28px;
+}
+
+.allocationToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.sameCityToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #34405a;
+}
+
+.claimToast {
+  background: #e8f8ec;
+  color: #1d7b3a;
+  border: 1px solid #bde7c7;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.allocatedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.allocatedCard {
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.allocatedImg {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.allocatedImg.noImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f2f5;
+  color: #666;
+  font-weight: 600;
+}
+
+.allocatedContent {
+  padding: 14px;
+}
+
+.allocatedHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.allocatedHeader h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.allocationBadge {
+  background: #e8f8ec;
+  color: #1d7b3a;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.matchTypeRow {
+  margin-top: 8px;
+}
+
+.matchTypeBadge {
+  display: inline-block;
+  background: #edf3ff;
+  color: #2d4f88;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.allocationReason {
+  font-weight: 600;
+  color: #1c1e20;
+}
+
+.claimJobBtn {
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #1c1e20;
+  color: #fff;
+  padding: 9px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.claimJobBtn:disabled {
+  background: #9ea4ab;
+  cursor: not-allowed;
+}
+
+.claimError {
+  color: #b00020;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.viewJobBtn {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+  border: 1px solid #1c1e20;
+  color: #1c1e20;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+.viewJobBtn:hover {
+  background: #1c1e20;
+  color: #fff;
+}
+
 .ordersContainer th {
   background-color: white;
 }
 
+.ordersContainer table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
 .ordersContainer td {
   padding-left: 8px;
+  vertical-align: middle;
 }
 
 @media (max-width: 900px) {
   .ordersContainer {
     height: auto;
+    min-height: unset;
+    padding: 20px 12px 40px;
   }
 
   .dashboardStats {
@@ -78,5 +231,20 @@
 
   .ordersContainer td {
     padding-left: 4px;
+  }
+
+  .ordersContainer table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .allocatedHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .allocationToolbar {
+    justify-content: flex-start;
   }
 }

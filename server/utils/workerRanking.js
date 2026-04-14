@@ -20,43 +20,193 @@ const normalizeRating = (rating) => {
 
 const normalizeList = (value) => {
   if (!value) return [];
-  if (Array.isArray(value)) return value.map((item) => String(item).trim().toLowerCase()).filter(Boolean);
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim().toLowerCase()).filter(Boolean);
+  }
   return String(value)
-    .split(",")
+    .split(/[;,]/)
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean);
 };
 
+const SKILL_ALIASES = {
+  plumbing: ["plumber", "plumbing", "pipe repair", "leak fixing", "tap fitting", "drain"],
+  electrician: ["electrical", "wiring", "electrician", "switch repair"],
+  carpentry: ["carpenter", "wood work", "furniture repair", "carpentry"],
+  tutoring: ["tuition", "tutor", "teaching", "math tutor", "science tutor"],
+  design: ["graphic design", "logo design", "poster", "banner design", "photoshop"],
+  technical: ["tech support", "technical help", "computer repair", "software install", "network"],
+  delivery: ["delivery", "errands", "pickup", "drop"],
+  cleaning: ["cleaning", "house cleaning", "deep cleaning", "organizing"],
+};
+
+const buildAliasIndex = () => {
+  const map = new Map();
+  Object.entries(SKILL_ALIASES).forEach(([canonical, aliases]) => {
+    map.set(canonical, canonical);
+    aliases.forEach((alias) => map.set(alias, canonical));
+  });
+  return map;
+};
+
+const SKILL_ALIAS_INDEX = buildAliasIndex();
+
+const STATE_ALIASES = {
+  up: "uttar pradesh",
+  mp: "madhya pradesh",
+  mh: "maharashtra",
+  dl: "delhi",
+  ncr: "delhi",
+  rj: "rajasthan",
+  gj: "gujarat",
+  ka: "karnataka",
+  tn: "tamil nadu",
+};
+
+const normalizeLocationText = (value) => {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9,\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const normalizeLocationPart = (value) => {
+  const cleaned = normalizeLocationText(value);
+  return STATE_ALIASES[cleaned] || cleaned;
+};
+
+const parseLocationParts = (value) => {
+  const normalized = normalizeLocationText(value);
+  if (!normalized) {
+    return {
+      raw: "",
+      city: "",
+      state: "",
+      parts: [],
+    };
+  }
+
+  const parts = normalized
+    .split(",")
+    .map((part) => normalizeLocationPart(part))
+    .filter(Boolean);
+
+  const city = parts[0] || normalizeLocationPart(normalized.split(" ")[0]);
+  const state = parts.length > 1 ? parts[parts.length - 1] : "";
+
+  return {
+    raw: normalized,
+    city,
+    state,
+    parts,
+  };
+};
+
+const getLocationTokenOverlap = (jobRaw, workerRaw) => {
+  const jobTokens = new Set(jobRaw.split(/[^a-z0-9]+/).filter((token) => token.length > 2));
+  const workerTokens = new Set(
+    workerRaw.split(/[^a-z0-9]+/).filter((token) => token.length > 2)
+  );
+
+  if (jobTokens.size === 0 || workerTokens.size === 0) return 0;
+
+  let overlap = 0;
+  jobTokens.forEach((token) => {
+    if (workerTokens.has(token)) overlap += 1;
+  });
+
+  return overlap / jobTokens.size;
+};
+
+const toCanonicalSkill = (skill) => {
+  const value = String(skill || "").trim().toLowerCase();
+  return SKILL_ALIAS_INDEX.get(value) || value;
+};
+
+const toSkillTokens = (skill) => {
+  return String(skill || "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 1);
+};
+
 const extractJobSkills = (job) => {
-  const fromShortTitle = normalizeList(job?.shortTitle);
-  if (fromShortTitle.length > 0) return fromShortTitle;
+  const skillSet = new Set();
+
+  normalizeList(job?.shortTitle).forEach((skill) => skillSet.add(toCanonicalSkill(skill)));
+  normalizeList(job?.cat).forEach((skill) => skillSet.add(toCanonicalSkill(skill)));
 
   const desc = String(job?.desc || "");
   const match = desc.match(/required skills\s*:\s*([^\n]+)/i);
-  return normalizeList(match ? match[1] : "");
+  normalizeList(match ? match[1] : "").forEach((skill) =>
+    skillSet.add(toCanonicalSkill(skill))
+  );
+
+  if (skillSet.size === 0) {
+    normalizeList(job?.title).forEach((skill) => skillSet.add(toCanonicalSkill(skill)));
+  }
+
+  return Array.from(skillSet);
 };
 
 const extractJobLocation = (job) => {
   const shortDesc = String(job?.shortDesc || "");
   const match = shortDesc.match(/location\s*:\s*(.+)/i);
-  if (match) return match[1].trim().toLowerCase();
+  if (match) return normalizeLocationText(match[1]);
 
   const desc = String(job?.desc || "");
   const descMatch = desc.match(/location\s*:\s*([^\n]+)/i);
-  return descMatch ? descMatch[1].trim().toLowerCase() : "";
+  return descMatch ? normalizeLocationText(descMatch[1]) : "";
 };
 
 const getSkillMatchScore = (jobSkills, workerSkills) => {
   if (jobSkills.length === 0) return 60;
-  const workerSet = new Set(workerSkills);
-  const matched = jobSkills.filter((skill) => workerSet.has(skill)).length;
-  return clampScore((matched / jobSkills.length) * 100);
+
+  const canonicalWorkerSkills = workerSkills.map((skill) => toCanonicalSkill(skill));
+  const workerSet = new Set(canonicalWorkerSkills);
+
+  const totalMatch = jobSkills.reduce((acc, jobSkill) => {
+    const canonicalJobSkill = toCanonicalSkill(jobSkill);
+    if (workerSet.has(canonicalJobSkill)) {
+      return acc + 1;
+    }
+
+    const jobTokens = new Set(toSkillTokens(canonicalJobSkill));
+    const hasPartial = canonicalWorkerSkills.some((workerSkill) => {
+      const workerTokens = new Set(toSkillTokens(workerSkill));
+      let overlap = 0;
+      jobTokens.forEach((token) => {
+        if (workerTokens.has(token)) overlap += 1;
+      });
+      return overlap >= 1;
+    });
+
+    return acc + (hasPartial ? 0.7 : 0);
+  }, 0);
+
+  return clampScore((totalMatch / jobSkills.length) * 100);
 };
 
 const getLocationScore = (jobLocation, workerLocation) => {
   if (!jobLocation || !workerLocation) return 30;
-  if (jobLocation === workerLocation) return 100;
-  if (jobLocation.includes(workerLocation) || workerLocation.includes(jobLocation)) return 70;
+
+  const job = parseLocationParts(jobLocation);
+  const worker = parseLocationParts(workerLocation);
+
+  if (!job.raw || !worker.raw) return 30;
+
+  if (job.raw === worker.raw) return 100;
+  if (job.city && worker.city && job.city === worker.city) return 100;
+
+  const overlapRatio = getLocationTokenOverlap(job.raw, worker.raw);
+  if (overlapRatio >= 0.5) return 80;
+
+  if (job.state && worker.state && job.state === worker.state) return 70;
+  if (job.state && worker.city && job.state === worker.city) return 70;
+  if (worker.state && job.city && worker.state === job.city) return 70;
+
   return 30;
 };
 

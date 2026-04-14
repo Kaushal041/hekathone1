@@ -13,6 +13,8 @@ function Register() {
     password: "",
     img: "",
     country: "",
+    location: "",
+    skills: "",
     isSeller: false,
     desc: "",
   });
@@ -35,8 +37,15 @@ function Register() {
 
     // const url = await upload(file);
     try {
+      const normalizedSkills = String(user.skills || "")
+        .split(/[;,]/)
+        .map((skill) => skill.trim())
+        .filter(Boolean);
+
       await newRequest.post("/auth/register", {
         ...user,
+        skills: normalizedSkills,
+        location: user.location || user.country,
       });
       navigate("/");
     } catch (err) {
@@ -54,10 +63,6 @@ function Register() {
     <>
       <p className="loginLine">
         Already have an account? <Link to="/login">Sign In</Link>
-      </p>
-      <p className="loginsecondLine">
-        For testing purposes, use the credentials: username: <b>user</b> and
-        password: <b>user</b>
       </p>
       {errorMsg && <div className="registerError">{errorMsg}</div>}
       <div className="register">
@@ -110,6 +115,20 @@ function Register() {
               name="phone"
               type="text"
               placeholder="+91 9876543210"
+              onChange={handleChange}
+            />
+            <label htmlFor="">Location</label>
+            <input
+              name="location"
+              type="text"
+              placeholder="e.g. Mathura"
+              onChange={handleChange}
+            />
+            <label htmlFor="">Skills (comma separated)</label>
+            <input
+              name="skills"
+              type="text"
+              placeholder="e.g. plumbing, pipe repair, leak fixing"
               onChange={handleChange}
             />
             <label htmlFor="">Description</label>

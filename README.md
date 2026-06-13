@@ -1,4 +1,4 @@
-<h1 align="center">⚡ SkillBrix</h1>
+<h1 align="center"><img src="/frontend/src/assets/Readmelogo.PNG" height="50px" align="center"/></h1>
 
 <p align="center"><b>Find the nearest worker for every small problem — plumbing, electrical, tutoring & more.</b></p>
 
@@ -152,7 +152,10 @@ Backend runs on `http://localhost:8800`, frontend on `http://localhost:3000`.
 
 ## Screenshots
 
-*(Add screenshots of your app here)*
+<h1 align="center"><img src="/frontend/src/assets/1.PNG"/></h1>
+<h1 align="center"><img src="/frontend/src/assets/2.PNG"/></h1>
+<h1 align="center"><img src="/frontend/src/assets/3.PNG"/></h1>
+
 
 ---
 

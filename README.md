@@ -152,9 +152,9 @@ Backend runs on `http://localhost:8800`, frontend on `http://localhost:3000`.
 
 ## Screenshots
 
-<h1 align="center"><img src="/frontend/src/assets/1.PNG"/></h1>
-<h1 align="center"><img src="/frontend/src/assets/2.PNG"/></h1>
-<h1 align="center"><img src="/frontend/src/assets/3.PNG"/></h1>
+<h1 align="center"><img src="/frontend/src/assets/1.png"/></h1>
+<h1 align="center"><img src="/frontend/src/assets/2.png"/></h1>
+<h1 align="center"><img src="/frontend/src/assets/3.png"/></h1>
 
 
 ---
